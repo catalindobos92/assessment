@@ -72,5 +72,14 @@ public class RelationService {
       throw new IllegalArgumentException("Field w2 cannot be empty or null!");
     if (relation.getR() == null || relation.getR().isEmpty())
       throw new IllegalArgumentException("Field r cannot be empty or null!");
+
+    if (!relation.getW1().matches("[a-zA-Z ]*"))
+      throw new IllegalArgumentException("Only letters and spaces are allowed!");
+
+    if (!relation.getW2().matches("[a-zA-Z ]*"))
+      throw new IllegalArgumentException("Only letters and spaces are allowed!");
+
+    if (!relation.getR().matches("[a-zA-Z ]*"))
+      throw new IllegalArgumentException("Only letters and spaces are allowed!");
   }
 }
