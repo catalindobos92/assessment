@@ -4,16 +4,20 @@ import com.catalin.app.entity.Relation;
 import com.catalin.app.service.RelationService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping("/api/v1/relation")
 public class RelationController {
   public final RelationService relationService;
+
+  @GetMapping
+  public List<Relation> getRelations() {
+    return relationService.getRelations();
+  }
 
   @PostMapping
   public Relation addRelation(@RequestBody RelationRequest relationRequest) {
