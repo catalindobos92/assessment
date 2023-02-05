@@ -21,8 +21,11 @@ public class RelationController {
   }
 
   @GetMapping("/filter")
-  public List<Relation> getRelations(@Nullable @RequestParam(name = "relation") String relation) {
-    return relationService.getRelationsFilter(relation);
+  public List<Relation> getRelations(
+      @Nullable @RequestParam(name = "w1") String w1,
+      @Nullable @RequestParam(name = "w2") String w2,
+      @Nullable @RequestParam(name = "relation") String relation) {
+    return relationService.getRelationsFilter(w1, w2, relation);
   }
 
   @GetMapping("/inverse")

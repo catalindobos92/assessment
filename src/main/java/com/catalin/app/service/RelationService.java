@@ -21,8 +21,10 @@ public class RelationService {
     return relationRepository.findAll();
   }
 
-  public List<Relation> getRelationsFilter(String relation) {
+  public List<Relation> getRelationsFilter(String w1, String w2, String relation) {
     List<FilterCriteria> criteria = new ArrayList<>();
+    if (w1 != null) criteria.add(new FilterCriteria("w1", w1));
+    if (w2 != null) criteria.add(new FilterCriteria("w2", w2));
     if (relation != null) criteria.add(new FilterCriteria("r", relation));
 
     FilterSpecification spec = new FilterSpecification(criteria);
@@ -30,10 +32,11 @@ public class RelationService {
   }
 
   public Relation addRelation(Relation relation) throws IllegalArgumentException {
-    validateRequest(relation);
+    validateRequestData(relation);
     relation.setW1(formatValue(relation.getW1()));
     relation.setW2(formatValue(relation.getW2()));
     relation.setR(formatValue(relation.getR()));
+    validateRequestAlreadyExistingRelation(relation);
     return relationRepository.save(relation);
   }
 
@@ -65,7 +68,15 @@ public class RelationService {
     return value.trim().toLowerCase();
   }
 
-  private void validateRequest(Relation relation) throws IllegalArgumentException {
+  private void validateRequestAlreadyExistingRelation(Relation relation)
+      throws IllegalArgumentException {
+    List<Relation> existingRelation =
+        getRelationsFilter(relation.getW1(), relation.getW2(), relation.getR());
+    if (!existingRelation.isEmpty())
+      throw new IllegalArgumentException("Relation already existing!");
+  }
+
+  private void validateRequestData(Relation relation) throws IllegalArgumentException {
     if (relation.getW1() == null || relation.getW1().isEmpty())
       throw new IllegalArgumentException("Field w1 cannot be empty or null!");
     if (relation.getW2() == null || relation.getW2().isEmpty())
