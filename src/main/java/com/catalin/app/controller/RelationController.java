@@ -4,6 +4,7 @@ import com.catalin.app.entity.Relation;
 import com.catalin.app.service.RelationService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +16,8 @@ public class RelationController {
   public final RelationService relationService;
 
   @GetMapping
-  public List<Relation> getRelations() {
-    return relationService.getRelations();
+  public List<Relation> getRelations(@Nullable @RequestParam(name = "relation") String relation) {
+    return relationService.getRelations(relation);
   }
 
   @PostMapping
