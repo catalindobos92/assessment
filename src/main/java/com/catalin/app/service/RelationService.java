@@ -74,6 +74,11 @@ public class RelationService {
         getRelationsFilter(relation.getW1(), relation.getW2(), relation.getR());
     if (!existingRelation.isEmpty())
       throw new IllegalArgumentException("Relation already existing!");
+
+    List<Relation> existingInverseRelation =
+        getRelationsFilter(relation.getW2(), relation.getW1(), relation.getR());
+    if (!existingInverseRelation.isEmpty())
+      throw new IllegalArgumentException("Relation inverse already existing!");
   }
 
   private void validateRequestData(Relation relation) throws IllegalArgumentException {
