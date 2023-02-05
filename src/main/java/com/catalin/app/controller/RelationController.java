@@ -16,8 +16,18 @@ public class RelationController {
   public final RelationService relationService;
 
   @GetMapping
+  public List<Relation> getRelations() {
+    return relationService.getRelations();
+  }
+
+  @GetMapping("/filter")
   public List<Relation> getRelations(@Nullable @RequestParam(name = "relation") String relation) {
-    return relationService.getRelations(relation);
+    return relationService.getRelationsFilter(relation);
+  }
+
+  @GetMapping("/inverse")
+  public List<RelationInverseResponse> getInverseRelations() {
+    return relationService.getInverseRelations();
   }
 
   @PostMapping
@@ -31,4 +41,6 @@ public class RelationController {
   }
 
   record RelationRequest(String w1, String w2, String r) {}
+
+  public record RelationInverseResponse(String w1, String w2, String r, String yesOrNo) {}
 }
