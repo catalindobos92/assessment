@@ -31,7 +31,8 @@ public class RelationController {
   }
 
   @PostMapping
-  public Relation addRelation(@RequestBody RelationRequest relationRequest) {
+  public Relation addRelation(@RequestBody RelationRequest relationRequest)
+      throws IllegalArgumentException {
     Relation relation = new Relation();
     relation.setW1(relationRequest.w1());
     relation.setW2(relationRequest.w2());

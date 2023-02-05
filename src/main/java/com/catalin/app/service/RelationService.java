@@ -29,7 +29,11 @@ public class RelationService {
     return relationRepository.findAll(spec);
   }
 
-  public Relation addRelation(Relation relation) {
+  public Relation addRelation(Relation relation) throws IllegalArgumentException {
+    validateRequest(relation);
+    relation.setW1(formatValue(relation.getW1()));
+    relation.setW2(formatValue(relation.getW2()));
+    relation.setR(formatValue(relation.getR()));
     return relationRepository.save(relation);
   }
 
@@ -55,5 +59,18 @@ public class RelationService {
                         relation.getW2(), relation.getW1(), relation.getR(), "yes"))
             .toList());
     return response;
+  }
+
+  private String formatValue(String value) {
+    return value.trim().toLowerCase();
+  }
+
+  private void validateRequest(Relation relation) throws IllegalArgumentException {
+    if (relation.getW1() == null || relation.getW1().isEmpty())
+      throw new IllegalArgumentException("Field w1 cannot be empty or null!");
+    if (relation.getW2() == null || relation.getW2().isEmpty())
+      throw new IllegalArgumentException("Field w2 cannot be empty or null!");
+    if (relation.getR() == null || relation.getR().isEmpty())
+      throw new IllegalArgumentException("Field r cannot be empty or null!");
   }
 }
