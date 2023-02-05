@@ -2,6 +2,7 @@ package com.catalin.app.controller;
 
 import com.catalin.app.entity.Relation;
 import com.catalin.app.service.RelationService;
+import exception.ApiRelationException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -35,7 +36,7 @@ public class RelationController {
 
   @PostMapping
   public Relation addRelation(@RequestBody RelationRequest relationRequest)
-      throws IllegalArgumentException {
+      throws ApiRelationException {
     Relation relation = new Relation();
     relation.setW1(relationRequest.w1());
     relation.setW2(relationRequest.w2());
