@@ -11,7 +11,7 @@ public class RelationDTOMapper {
         relation.getId(),
         inversed ? relation.getWordTwo() : relation.getWordOne(),
         inversed ? relation.getWordOne() : relation.getWordTwo(),
-        relation.getWordRelation().getLabel(),
+        relation.getWordRelation().name().toLowerCase(),
         inversed ? "Yes" : "No");
   }
 }

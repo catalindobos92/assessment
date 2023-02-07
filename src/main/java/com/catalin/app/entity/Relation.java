@@ -24,5 +24,7 @@ public class Relation {
 
   @Column(nullable = false, name = "word_relation")
   @Enumerated(value = EnumType.STRING)
-  RelationName wordRelation;
+  RelationType wordRelation;
+
+  public record Insert(String wordOne, String wordTwo, String wordRelation) {}
 }

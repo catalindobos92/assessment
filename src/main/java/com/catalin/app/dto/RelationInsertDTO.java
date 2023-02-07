@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class RelationRequestBody {
+public class RelationInsertDTO {
   @NotBlank(message = "Field wordOne cannot be empty!")
   @Pattern(regexp = "[\\sA-Za-z]*", message = "Only letters and spaces are allowed!")
   String wordOne;
