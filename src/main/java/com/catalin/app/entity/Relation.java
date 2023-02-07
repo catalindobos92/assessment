@@ -26,5 +26,5 @@ public class Relation {
   @Enumerated(value = EnumType.STRING)
   RelationType wordRelation;
 
-  public record Insert(String wordOne, String wordTwo, String wordRelation) {}
+  public record Insert(String wordOne, String wordTwo, RelationType wordRelation) {}
 }

@@ -16,9 +16,9 @@ import java.util.Optional;
 public class RelationService {
   private final RelationRepository relationRepository;
 
-  public List<Relation> getRelations(String wordRelation) {
-    if (wordRelation != null && !wordRelation.isEmpty())
-      return relationRepository.findByWordRelation(wordRelation);
+  public List<Relation> getRelations(Optional<RelationType> wordRelationOptional) {
+    if (wordRelationOptional.isPresent())
+      return relationRepository.findByWordRelation(wordRelationOptional.get());
     return relationRepository.findAll();
   }
 
@@ -26,7 +26,7 @@ public class RelationService {
     Relation newRelation = new Relation();
     newRelation.setWordOne(relation.wordOne());
     newRelation.setWordTwo(relation.wordTwo());
-    newRelation.setWordRelation(RelationType.fromString(relation.wordRelation()));
+    newRelation.setWordRelation(relation.wordRelation());
 
     Optional<Relation> existingRelation =
         relationRepository.findByWordOneAndWordTwo(
