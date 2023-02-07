@@ -1,101 +1,79 @@
 package com.catalin.app.service;
 
-import com.catalin.app.controller.RelationController;
+import com.catalin.app.dto.RelationDTO;
+import com.catalin.app.dto.RelationDTOMapper;
+import com.catalin.app.dto.RelationRequestBody;
 import com.catalin.app.entity.Relation;
+import com.catalin.app.entity.RelationName;
+import com.catalin.app.exception.ApiRelationException;
 import com.catalin.app.repository.RelationRepository;
-import com.catalin.app.specification.FilterCriteria;
-import com.catalin.app.specification.FilterSpecification;
-import exception.ApiRelationException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class RelationService {
-  public final RelationRepository relationRepository;
+  private final RelationRepository relationRepository;
+  private final RelationDTOMapper relationDTOMapper;
 
-  public List<Relation> getRelations() {
-    return relationRepository.findAll();
+  public List<RelationDTO> getRelations(String wordRelation) {
+    if (wordRelation != null && !wordRelation.isEmpty())
+      return relationRepository.findByWordRelation(wordRelation).stream()
+          .map(relation -> relationDTOMapper.transform(relation, false))
+          .toList();
+    return relationRepository.findAll().stream()
+        .map(relation -> relationDTOMapper.transform(relation, false))
+        .toList();
   }
 
-  public List<Relation> getRelationsFilter(String w1, String w2, String relation) {
-    List<FilterCriteria> criteria = new ArrayList<>();
-    if (w1 != null) criteria.add(new FilterCriteria("w1", w1));
-    if (w2 != null) criteria.add(new FilterCriteria("w2", w2));
-    if (relation != null) criteria.add(new FilterCriteria("r", relation));
+  public RelationDTO addRelation(RelationRequestBody relation) throws ApiRelationException {
+    Relation newRelation = new Relation();
+    newRelation.setWordOne(formatValue(relation.getWordOne()));
+    newRelation.setWordTwo(formatValue(relation.getWordTwo()));
+    newRelation.setWordRelation(RelationName.fromLabel(formatValue(relation.getWordRelation())));
 
-    FilterSpecification spec = new FilterSpecification(criteria);
-    return relationRepository.findAll(spec);
+    Optional<Relation> existingRelation =
+        relationRepository.findByWordOneAndWordTwo(
+            newRelation.getWordOne(), newRelation.getWordTwo());
+
+    if (existingRelation.isPresent())
+      throw new ApiRelationException("Relation already exists for the words!");
+
+    Optional<Relation> existingInverseRelation =
+        relationRepository.findByWordOneAndWordTwo(
+            newRelation.getWordTwo(), newRelation.getWordOne());
+
+    if (existingInverseRelation.isPresent())
+      throw new ApiRelationException("Relation (inversed) already exists for the words!");
+
+    Relation result = relationRepository.save(newRelation);
+    return relationDTOMapper.transform(result, false);
   }
 
-  public Relation addRelation(Relation relation) throws ApiRelationException {
-    validateRequestData(relation);
-    relation.setW1(formatValue(relation.getW1()));
-    relation.setW2(formatValue(relation.getW2()));
-    relation.setR(formatValue(relation.getR()));
-    validateRequestAlreadyExistingRelation(relation);
-    return relationRepository.save(relation);
-  }
-
-  public List<RelationController.RelationInverseResponse> getInverseRelations() {
+  public List<RelationDTO> getInverseRelations() {
     List<Relation> existingRelations = relationRepository.findAll();
 
     // add DB entries with 'no' flag
-    List<RelationController.RelationInverseResponse> response =
+    List<RelationDTO> response =
         new ArrayList<>(
             existingRelations.stream()
-                .map(
-                    relation ->
-                        new RelationController.RelationInverseResponse(
-                            relation.getW1(), relation.getW2(), relation.getR(), "no"))
+                .map(relation -> relationDTOMapper.transform(relation, false))
                 .toList());
 
     // add generated entries with 'yes' flag
     response.addAll(
         existingRelations.stream()
-            .map(
-                relation ->
-                    new RelationController.RelationInverseResponse(
-                        relation.getW2(), relation.getW1(), relation.getR(), "yes"))
+            .map(relation -> relationDTOMapper.transform(relation, true))
             .toList());
     return response;
   }
 
   private String formatValue(String value) {
     return value.trim().toLowerCase();
-  }
-
-  private void validateRequestAlreadyExistingRelation(Relation relation)
-      throws ApiRelationException {
-    List<Relation> existingRelation = getRelationsFilter(relation.getW1(), relation.getW2(), null);
-    if (!existingRelation.isEmpty())
-      throw new ApiRelationException("Relation already existing for these 2 words!");
-
-    List<Relation> existingInverseRelation =
-        getRelationsFilter(relation.getW2(), relation.getW1(), null);
-    if (!existingInverseRelation.isEmpty())
-      throw new ApiRelationException("Relation inverse already existing for these two words!");
-  }
-
-  private void validateRequestData(Relation relation) throws ApiRelationException {
-    if (relation.getW1() == null || relation.getW1().isEmpty())
-      throw new ApiRelationException("Field w1 cannot be empty or null!");
-    if (relation.getW2() == null || relation.getW2().isEmpty())
-      throw new ApiRelationException("Field w2 cannot be empty or null!");
-    if (relation.getR() == null || relation.getR().isEmpty())
-      throw new ApiRelationException("Field r cannot be empty or null!");
-
-    if (!relation.getW1().matches("[a-zA-Z ]*"))
-      throw new ApiRelationException("Only letters and spaces are allowed!");
-
-    if (!relation.getW2().matches("[a-zA-Z ]*"))
-      throw new ApiRelationException("Only letters and spaces are allowed!");
-
-    if (!relation.getR().matches("[a-zA-Z ]*"))
-      throw new ApiRelationException("Only letters and spaces are allowed!");
   }
 }

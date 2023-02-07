@@ -1,8 +1,10 @@
 package com.catalin.app.controller;
 
-import com.catalin.app.entity.Relation;
+import com.catalin.app.dto.RelationDTO;
+import com.catalin.app.dto.RelationRequestBody;
+import com.catalin.app.exception.ApiRelationException;
 import com.catalin.app.service.RelationService;
-import exception.ApiRelationException;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -14,38 +16,22 @@ import java.util.List;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping("/api/v1/relation")
 public class RelationController {
-  public final RelationService relationService;
+  private final RelationService relationService;
 
-  @GetMapping
-  public List<Relation> getRelations() {
-    return relationService.getRelations();
-  }
-
-  @GetMapping("/filter")
-  public List<Relation> getRelations(
-      @Nullable @RequestParam(name = "w1") String w1,
-      @Nullable @RequestParam(name = "w2") String w2,
-      @Nullable @RequestParam(name = "relation") String relation) {
-    return relationService.getRelationsFilter(w1, w2, relation);
+  @GetMapping()
+  public List<RelationDTO> getRelations(
+      @Nullable @RequestParam(name = "wordRelation") String wordRelation) {
+    return relationService.getRelations(wordRelation);
   }
 
   @GetMapping("/inverse")
-  public List<RelationInverseResponse> getInverseRelations() {
+  public List<RelationDTO> getInverseRelations() {
     return relationService.getInverseRelations();
   }
 
   @PostMapping
-  public Relation addRelation(@RequestBody RelationRequest relationRequest)
+  public RelationDTO addRelation(@RequestBody @Valid RelationRequestBody relationRequest)
       throws ApiRelationException {
-    Relation relation = new Relation();
-    relation.setW1(relationRequest.w1());
-    relation.setW2(relationRequest.w2());
-    relation.setR(relationRequest.r());
-
-    return relationService.addRelation(relation);
+    return relationService.addRelation(relationRequest);
   }
-
-  record RelationRequest(String w1, String w2, String r) {}
-
-  public record RelationInverseResponse(String w1, String w2, String r, String yesOrNo) {}
 }

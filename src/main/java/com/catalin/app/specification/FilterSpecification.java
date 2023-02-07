@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
+@Deprecated
 @AllArgsConstructor
 public class FilterSpecification implements Specification<Relation> {
   private final List<FilterCriteria> filterCriteria;
