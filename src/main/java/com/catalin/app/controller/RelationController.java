@@ -22,18 +22,11 @@ import java.util.stream.Stream;
 public class RelationController {
   private final RelationService relationService;
 
-  private static RelationType fromStringToEnum(String relation) {
-    return Stream.of(RelationType.values())
-        .filter(item -> item.name().equalsIgnoreCase(relation))
-        .findFirst()
-        .orElseThrow(() -> new ApiRelationException("Non existent relation"));
-  }
-
   @GetMapping()
   public List<RelationDTO> getRelations(
       @Nullable @RequestParam(name = "relation") String relation) {
     return relationService
-        .getRelations(Optional.ofNullable(relation).map(RelationController::fromStringToEnum))
+        .getRelations(Optional.ofNullable(relation).map(this::fromStringToEnum))
         .stream()
         .map(wordRelation -> transform(wordRelation, false))
         .toList();
@@ -66,5 +59,12 @@ public class RelationController {
         inversed ? relation.getWordOne() : relation.getWordTwo(),
         relation.getWordRelation().name().toLowerCase(),
         inversed ? "Yes" : "No");
+  }
+
+  private RelationType fromStringToEnum(String relation) {
+    return Stream.of(RelationType.values())
+            .filter(item -> item.name().equalsIgnoreCase(relation))
+            .findFirst()
+            .orElseThrow(() -> new ApiRelationException("Non existent relation"));
   }
 }
